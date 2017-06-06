@@ -47,3 +47,12 @@ C:\Users\Administrator\Desktop\电源控制板上位机170603\串口调试助手
 C:\Users\Administrator\Desktop\电源控制板上位机170604\串口调试助手\USART_CTL_V1.0\bin\Debug\USART_CTL_V1.0.exe.config
 C:\Users\Administrator\Desktop\电源控制板上位机170604\串口调试助手\USART_CTL_V1.0\obj\Debug\USART_CTL_V1.0.exe
 C:\Users\Administrator\Desktop\电源控制板上位机170604\串口调试助手\USART_CTL_V1.0\obj\Debug\USART_CTL_V1.0.pdb
+F:\learngit\电源控制板上位机\串口调试助手\USART_CTL_V1.0\bin\Debug\USART_CTL_V1.0.exe.config
+F:\learngit\电源控制板上位机\串口调试助手\USART_CTL_V1.0\obj\Debug\USART_CTL_V1.0.exe
+F:\learngit\电源控制板上位机\串口调试助手\USART_CTL_V1.0\obj\Debug\USART_CTL_V1.0.pdb
+F:\learngit\电源控制板上位机\串口调试助手\USART_CTL_V1.0\bin\Debug\USART_CTL_V1.0.exe
+F:\learngit\电源控制板上位机\串口调试助手\USART_CTL_V1.0\bin\Debug\USART_CTL_V1.0.pdb
+F:\learngit\电源控制板上位机\串口调试助手\USART_CTL_V1.0\obj\Debug\USART_CTL_V1.0.csprojResolveAssemblyReference.cache
+F:\learngit\电源控制板上位机\串口调试助手\USART_CTL_V1.0\obj\Debug\USART_CTL_V1._0.MainForm.resources
+F:\learngit\电源控制板上位机\串口调试助手\USART_CTL_V1.0\obj\Debug\USART_CTL_V1._0.Properties.Resources.resources
+F:\learngit\电源控制板上位机\串口调试助手\USART_CTL_V1.0\obj\Debug\USART_CTL_V1.0.csproj.GenerateResource.Cache

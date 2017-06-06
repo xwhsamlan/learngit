@@ -137,6 +137,7 @@ namespace USART_CTL_V1._0
 
         //定义接受到的数据的缓存字符
         string BufferData;
+        int Temp_cnt_num = 1;
 
         /// <summary>
         /// 串口接收处理函数
@@ -185,9 +186,33 @@ namespace USART_CTL_V1._0
                         case "04":
                             break;
                         //数据部分
-                        case "05":
-                            string str5 = BufferData.Substring(6);
-                            textBox1.AppendText(DateTime.Now.ToString() + "   " + str5 + "\r\n");        //串口类会自动处理汉字，所以不需要特别转换
+                        case "05":                           
+                            float[] Data_Temp = new float[10];
+                            Data_Temp[0] = ((float)Int32.Parse(BufferData.Substring(6, 2), System.Globalization.NumberStyles.HexNumber) + 100) / 10;
+                            Data_Temp[1] = ((float)Int32.Parse(BufferData.Substring(8, 2), System.Globalization.NumberStyles.HexNumber) + 100) / 10;
+                            Data_Temp[2] = ((float)Int32.Parse(BufferData.Substring(10, 2), System.Globalization.NumberStyles.HexNumber) + 100) / 10;
+                            Data_Temp[3] = ((float)Int32.Parse(BufferData.Substring(12, 2), System.Globalization.NumberStyles.HexNumber) + 100) / 10;
+                            Data_Temp[4] = ((float)Int32.Parse(BufferData.Substring(14, 2), System.Globalization.NumberStyles.HexNumber) + 100) / 10;
+                            Data_Temp[5] = ((float)Int32.Parse(BufferData.Substring(16, 2), System.Globalization.NumberStyles.HexNumber) + 100) / 10;
+                            Data_Temp[6] = ((float)Int32.Parse(BufferData.Substring(18, 2), System.Globalization.NumberStyles.HexNumber) + 100) / 10;
+                            Data_Temp[7] = ((float)Int32.Parse(BufferData.Substring(20, 2), System.Globalization.NumberStyles.HexNumber) + 100) / 10;
+                            Data_Temp[8] = ((float)Int32.Parse(BufferData.Substring(22, 2), System.Globalization.NumberStyles.HexNumber) + 100) / 10;
+                            Data_Temp[9] = ((float)Int32.Parse(BufferData.Substring(24, 2), System.Globalization.NumberStyles.HexNumber) + 100) / 10;
+                            for (int i = 0; i < 10; i++)
+                            {
+                                textBox1.AppendText(DateTime.Now.ToString() + "   " + "Temp" + Temp_cnt_num + "   " + Data_Temp[i] + "\r\n");
+                                if (Temp_cnt_num >= 500)
+                                {
+                                    Temp_cnt_num = 1;
+                                }
+                                else
+                                {
+                                    Temp_cnt_num++;
+                                }
+
+                            }
+                            //textBox1.AppendText(DateTime.Now.ToString() + "   " + abc + "\r\n");
+                            //textBox1.AppendText(DateTime.Now.ToString() + "   " + str5 + "\r\n");        //串口类会自动处理汉字，所以不需要特别转换
                             break;
                         default: break;
                     }
@@ -249,7 +274,7 @@ namespace USART_CTL_V1._0
         {
             try
             {
-                serialPort1.Write("CMD:32\r\n");                                 
+                serialPort1.Write("CMD:32\r\n");
             }
             catch
             {
@@ -266,7 +291,7 @@ namespace USART_CTL_V1._0
         {
             try
             {
-                serialPort1.Write("CMD:72\r\n");                                            
+                serialPort1.Write("CMD:72\r\n");
             }
             catch
             {
