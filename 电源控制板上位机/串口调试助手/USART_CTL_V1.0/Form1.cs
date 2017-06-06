@@ -37,7 +37,7 @@ namespace USART_CTL_V1._0
             {
                 comboBox1.Items.Add("COM" + i.ToString());       //添加串口到下拉列表
             }
-            comboBox1.Text = "COM6";                            //串口默认选项
+            comboBox1.Text = "COM29";                            //串口默认选项
             comboBox2.Text = "9600";
         }
 
@@ -161,15 +161,15 @@ namespace USART_CTL_V1._0
                             string str2 = BufferData.Substring(8, 2);
                             if (str2 == "01")
                             {
-                                pictureBox2.Image = Image.FromFile("InCharge.jpg");
+                                pictureBox2.Image = Image.FromFile("Full.jpg");
                             }
                             else if (str2 == "02")
                             {
-                                pictureBox2.Image = Image.FromFile("Cutout.jpg");
+                                pictureBox2.Image = Image.FromFile("InCharge.jpg");
                             }
                             else if (str2 == "03")
                             {
-                                pictureBox2.Image = Image.FromFile("Full.jpg");
+                                pictureBox2.Image = Image.FromFile("Cutout.jpg");
                             }
                             break;
                         //电压部分
@@ -186,7 +186,7 @@ namespace USART_CTL_V1._0
                         case "04":
                             break;
                         //数据部分
-                        case "05":                           
+                        case "05":
                             float[] Data_Temp = new float[10];
                             Data_Temp[0] = ((float)Int32.Parse(BufferData.Substring(6, 2), System.Globalization.NumberStyles.HexNumber) + 100) / 10;
                             Data_Temp[1] = ((float)Int32.Parse(BufferData.Substring(8, 2), System.Globalization.NumberStyles.HexNumber) + 100) / 10;
@@ -274,7 +274,7 @@ namespace USART_CTL_V1._0
         {
             try
             {
-                serialPort1.Write("CMD:32\r\n");
+                serialPort1.Write("CMD:020000\r\n");
             }
             catch
             {
@@ -291,7 +291,7 @@ namespace USART_CTL_V1._0
         {
             try
             {
-                serialPort1.Write("CMD:72\r\n");
+                serialPort1.Write("CMD:030000\r\n");
             }
             catch
             {
@@ -308,7 +308,7 @@ namespace USART_CTL_V1._0
         {
             try
             {
-                serialPort1.Write("CMD:1203010c02\r\n");                      //字符串写入
+                serialPort1.Write("CMD:013100\r\n");                      //字符串写入
             }
             catch
             {
@@ -317,7 +317,7 @@ namespace USART_CTL_V1._0
         }
 
         /// <summary>
-        /// 准备数据
+        /// 开始工作
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -325,7 +325,7 @@ namespace USART_CTL_V1._0
         {
             try
             {
-                serialPort1.Write("CMD:1213010c02\r\n");                      //字符串写入
+                serialPort1.Write("CMD:013500\r\n");                      //字符串写入
             }
             catch
             {
@@ -333,9 +333,9 @@ namespace USART_CTL_V1._0
             }
         }
 
-
+        string Data_i = "CMD:0136";
         /// <summary>
-        /// 发送数据
+        /// 获取数据
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -343,7 +343,13 @@ namespace USART_CTL_V1._0
         {
             try
             {
-                serialPort1.Write("CMD:1223010c02\r\n");                      //字符串写入
+                string i = textBox8.Text;
+                StringBuilder Str_i = new StringBuilder();
+
+                Str_i.Append(Data_i);
+                Str_i.Append(i + "\r\n");
+
+                serialPort1.Write(Str_i.ToString());                      //字符串写入
             }
             catch
             {
@@ -406,6 +412,8 @@ namespace USART_CTL_V1._0
         /// <param name="e"></param>
         private void AutoButton_Click(object sender, EventArgs e)
         {
+            AutoButton.Enabled = false;
+            button14.Enabled = true;
             timer1.Enabled = true;
         }
 
@@ -426,7 +434,63 @@ namespace USART_CTL_V1._0
         /// <param name="e"></param>
         private void button14_Click(object sender, EventArgs e)
         {
+            AutoButton.Enabled = true;
+            button14.Enabled = false;
             timer1.Enabled = false;
+        }
+
+
+        public static bool Delay_Time(int delayTime)
+        {
+            DateTime now = DateTime.Now;
+            int s;
+            do
+            {
+                TimeSpan spand = DateTime.Now - now;
+                s = spand.Seconds;
+                Application.DoEvents();
+            }
+            while (s < delayTime);
+            return true;
+        }
+
+        string Time_cmd = "CMD:0133";
+        string Delay_cmd = "CMD:0134";
+        string Cnt_cmd = "CMD:0132";
+        /// <summary>
+        /// 参数配置（确认更改）
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button13_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string Time = textBox3.Text;
+                string Delay = textBox4.Text;
+                string Cnt_number = textBox7.Text;
+
+                StringBuilder Str_T = new StringBuilder();
+                StringBuilder Str_D = new StringBuilder();
+                StringBuilder Str_C = new StringBuilder();
+
+                Str_T.Append(Time_cmd);
+                Str_T.Append(Time + "\r\n");
+                Str_D.Append(Delay_cmd);
+                Str_D.Append(Delay + "\r\n");
+                Str_C.Append(Cnt_cmd);
+                Str_C.Append(Cnt_number + "\r\n");
+
+                serialPort1.Write(Str_C.ToString());                      //字符串写入
+                Delay_Time(1);
+                serialPort1.Write(Str_T.ToString());                      //字符串写入
+                Delay_Time(1);
+                serialPort1.Write(Str_D.ToString());                      //字符串写入
+            }
+            catch
+            {
+                MessageBox.Show("串口数据写入错误", "错误");
+            }
         }
 
     }
