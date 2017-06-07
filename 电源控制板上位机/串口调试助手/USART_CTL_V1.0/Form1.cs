@@ -184,6 +184,20 @@ namespace USART_CTL_V1._0
                             break;
                         //应答部分
                         case "04":
+                            string str_watch = BufferData.Substring(6, 2);
+                            //string str_ack = BufferData.Substring(8, 2);
+                            if (str_watch == "01")
+                            {
+                                pictureBox3.Image = Image.FromFile("Green.jpg");
+                            }
+                            else if (str_watch == "04")
+                            {
+                                pictureBox5.Image = Image.FromFile("Green.jpg");
+                            }
+                            else if (str_watch == "05")
+                            {
+                                pictureBox4.Image = Image.FromFile("Green.jpg");
+                            }
                             break;
                         //数据部分
                         case "05":
@@ -213,6 +227,38 @@ namespace USART_CTL_V1._0
                             }
                             //textBox1.AppendText(DateTime.Now.ToString() + "   " + abc + "\r\n");
                             //textBox1.AppendText(DateTime.Now.ToString() + "   " + str5 + "\r\n");        //串口类会自动处理汉字，所以不需要特别转换
+                            break;
+                        case "06":
+                            string str_error = BufferData.Substring(6, 2);
+                            if (str_error == "01") //ACK错误
+                            {
+                                pictureBox3.Image = Image.FromFile("Red.jpg");
+                                textBox1.AppendText("ACK Error!");
+                            }
+                            else if (str_error == "02") //采集组数设置错误
+                            {
+                                pictureBox5.Image = Image.FromFile("Red.jpg");
+                                textBox1.AppendText("CatchNumber Error!");
+                            }
+                            else if (str_error == "03") //采集时间间隔设置错误
+                            {
+                                pictureBox5.Image = Image.FromFile("Red.jpg");
+                                textBox1.AppendText("CatchTime Error!");
+                            }
+                            else if (str_error == "04") //开始延时设置错误
+                            {
+                                pictureBox5.Image = Image.FromFile("Red.jpg");
+                                textBox1.AppendText("DelayTime Error!");
+                            }
+                            else if (str_error == "05") //开始工作指令设置错误
+                            {
+                                pictureBox4.Image = Image.FromFile("Red.jpg");
+                                textBox1.AppendText("StartCMD Error!");
+                            }
+                            else if (str_error == "06") //获取数据指令设置错误
+                            {
+                                textBox1.AppendText("GetDataCMD Error!");
+                            }
                             break;
                         default: break;
                     }
@@ -308,6 +354,7 @@ namespace USART_CTL_V1._0
         {
             try
             {
+                pictureBox3.Image = Image.FromFile("Red.jpg");
                 serialPort1.Write("CMD:013100\r\n");                      //字符串写入
             }
             catch
@@ -325,6 +372,7 @@ namespace USART_CTL_V1._0
         {
             try
             {
+                pictureBox4.Image = Image.FromFile("Red.jpg");
                 serialPort1.Write("CMD:013500\r\n");                      //字符串写入
             }
             catch
@@ -466,6 +514,7 @@ namespace USART_CTL_V1._0
         {
             try
             {
+                pictureBox5.Image = Image.FromFile("Red.jpg");
                 string Time = textBox3.Text;
                 string Delay = textBox4.Text;
                 string Cnt_number = textBox7.Text;
