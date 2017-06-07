@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -139,6 +140,12 @@ namespace USART_CTL_V1._0
         string BufferData;
         int Temp_cnt_num = 1;
 
+        //响应标志
+        bool ACK_Flag = false;
+        bool ACK_Flag_2 = false;
+        bool Set_Value_Flag = false;
+        bool Start_Work_Flag = false;
+
         /// <summary>
         /// 串口接收处理函数
         /// </summary>
@@ -188,14 +195,18 @@ namespace USART_CTL_V1._0
                             //string str_ack = BufferData.Substring(8, 2);
                             if (str_watch == "01")
                             {
+                                ACK_Flag = true;
+                                ACK_Flag_2 = true;
                                 pictureBox3.Image = Image.FromFile("Green.jpg");
                             }
                             else if (str_watch == "04")
                             {
+                                Set_Value_Flag = true;
                                 pictureBox5.Image = Image.FromFile("Green.jpg");
                             }
                             else if (str_watch == "05")
                             {
+                                Start_Work_Flag = true;
                                 pictureBox4.Image = Image.FromFile("Green.jpg");
                             }
                             break;
@@ -233,31 +244,31 @@ namespace USART_CTL_V1._0
                             if (str_error == "01") //ACK错误
                             {
                                 pictureBox3.Image = Image.FromFile("Red.jpg");
-                                textBox1.AppendText("ACK Error!");
+                                textBox1.AppendText("ACK Error!\r\n");
                             }
                             else if (str_error == "02") //采集组数设置错误
                             {
                                 pictureBox5.Image = Image.FromFile("Red.jpg");
-                                textBox1.AppendText("CatchNumber Error!");
+                                textBox1.AppendText("CatchNumber Error!\r\n");
                             }
                             else if (str_error == "03") //采集时间间隔设置错误
                             {
                                 pictureBox5.Image = Image.FromFile("Red.jpg");
-                                textBox1.AppendText("CatchTime Error!");
+                                textBox1.AppendText("CatchTime Error!\r\n");
                             }
                             else if (str_error == "04") //开始延时设置错误
                             {
                                 pictureBox5.Image = Image.FromFile("Red.jpg");
-                                textBox1.AppendText("DelayTime Error!");
+                                textBox1.AppendText("DelayTime Error!\r\n");
                             }
                             else if (str_error == "05") //开始工作指令设置错误
                             {
                                 pictureBox4.Image = Image.FromFile("Red.jpg");
-                                textBox1.AppendText("StartCMD Error!");
+                                textBox1.AppendText("StartCMD Error!\r\n");
                             }
                             else if (str_error == "06") //获取数据指令设置错误
                             {
-                                textBox1.AppendText("GetDataCMD Error!");
+                                textBox1.AppendText("GetDataCMD Error!\r\n");
                             }
                             break;
                         default: break;
@@ -433,7 +444,7 @@ namespace USART_CTL_V1._0
             {
                 SaveFileDialog sfd = new SaveFileDialog();
                 sfd.InitialDirectory = @"C:\Users\Administrator\Desktop";
-                sfd.Title = "请选择要保存的文件路径";
+                sfd.Title = "请选择要保存的文件路径  格式.txt";
                 sfd.Filter = "文本文件|*.txt|所有文件|*.*";
                 sfd.ShowDialog();
 
@@ -453,6 +464,8 @@ namespace USART_CTL_V1._0
             catch { }
         }
 
+        Thread th;
+        //
         /// <summary>
         /// 自动模式按钮函数
         /// </summary>
@@ -460,10 +473,112 @@ namespace USART_CTL_V1._0
         /// <param name="e"></param>
         private void AutoButton_Click(object sender, EventArgs e)
         {
+            timer1.Enabled = true;
+            ACK_Flag = false;
+            Set_Value_Flag = false;
+            Start_Work_Flag = false;
             AutoButton.Enabled = false;
             button14.Enabled = true;
-            timer1.Enabled = true;
+
+            pictureBox3.Image = Image.FromFile("Red.jpg");
+            pictureBox4.Image = Image.FromFile("Red.jpg");
+            pictureBox5.Image = Image.FromFile("Red.jpg");
+
+
+            //创建一个线程去执行这个方法
+            th = new Thread(Auto_Handle);
+            //标记这个线程准备就绪了，可以随时被执行。具体什么时候执行这个线程，
+            //由cpu决定
+            //将线程设置为后台线程
+            th.IsBackground = true;
+            //th.Start();
+            //th.Abort();
+            th.Start();
+            //timer1.Enabled = true;
+
+
+
         }
+
+        bool Time1_Start_Flag = false;
+
+        private void Auto_Handle()
+        {
+            try
+            {
+                string Time = textBox3.Text;
+                string Delay = textBox4.Text;
+                string Cnt_number = textBox7.Text;
+
+                StringBuilder Str_T = new StringBuilder();
+                StringBuilder Str_D = new StringBuilder();
+                StringBuilder Str_C = new StringBuilder();
+
+                while (ACK_Flag == false)
+                {
+                    serialPort1.Write("CMD:013100\r\n");
+                    Delay_Time(1);
+                }
+                while (Set_Value_Flag == false && ACK_Flag == true)
+                {
+
+                    Str_T.Append(Time_cmd);
+                    Str_T.Append(Time + "\r\n");
+                    Str_D.Append(Delay_cmd);
+                    Str_D.Append(Delay + "\r\n");
+                    Str_C.Append(Cnt_cmd);
+                    Str_C.Append(Cnt_number + "\r\n");
+
+                    serialPort1.Write(Str_C.ToString());                      //字符串写入
+                    Delay_Time(1);
+                    serialPort1.Write(Str_T.ToString());                      //字符串写入
+                    Delay_Time(1);
+                    serialPort1.Write(Str_D.ToString());                      //字符串写入
+                    Delay_Time(1);
+
+                    Str_T.Clear();
+                    Str_D.Clear();
+                    Str_C.Clear();
+                }
+                while (Start_Work_Flag == false && Set_Value_Flag == true && ACK_Flag == true)
+                {
+                    serialPort1.Write("CMD:013500\r\n");
+                    Delay_Time(1);
+                }
+                while (Start_Work_Flag == true && Set_Value_Flag == true && ACK_Flag == true)
+                {
+                    //serialPort1.Write("OKOK\r\n");
+                    //Delay_Time(1);
+                    string CatchTime = textBox3.Text;
+                    string CatchNum = textBox7.Text;
+                    CT = Convert.ToInt32(CatchTime);
+                    CN = Convert.ToInt32(CatchNum);
+
+                    time_set = CT * 10 * CN;
+
+                    //serialPort1.Write(time_set.ToString());
+
+                    Set_Value_Flag = false;
+                    Start_Work_Flag = false;
+                    ACK_Flag = false;
+
+                    Time1_Start_Flag = true;
+                    //timer1.Interval = 1000;
+                    //timer1.Enabled = true;
+
+                }
+            }
+            catch
+            {
+
+            }
+        }
+
+        int CT;
+        int CN;
+        int time_set;
+        int time1_i;
+        int group_i;
 
         /// <summary>
         /// 定时器1函数
@@ -472,7 +587,76 @@ namespace USART_CTL_V1._0
         /// <param name="e"></param>
         private void timer1_Tick(object sender, EventArgs e)
         {
-            //serialPort1.Write("CMD:1223010c02\r\n"); 
+            try
+            {
+                if (Time1_Start_Flag == true)
+                {
+                    time1_i++;
+                    if (time1_i == (time_set + 10))
+                    {
+                        time1_i = 0;
+                        timer3.Enabled = true;
+
+                        timer1.Enabled = false;
+                    }
+                }
+            }
+            catch
+            { }
+
+        }
+
+        private void timer3_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                serialPort1.Write("CMD:013100\r\n");
+                if (ACK_Flag == true)
+                {
+                    timer2.Enabled = true;
+                    timer3.Enabled = false;
+                }
+            }
+            catch
+            { }
+        }
+
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                group_i++;
+                //serialPort1.Write("CMD:013600\r\n");
+                //string i = textBox8.Text;
+                if (group_i <= CN)
+                {
+                    StringBuilder Str_i = new StringBuilder();
+
+                    Str_i.Append(Data_i);
+                    if (group_i < 10)
+                    {
+                        Str_i.Append("0" + group_i + "\r\n");
+                    }
+                    else
+                    {
+                        Str_i.Append(group_i + "\r\n");
+                    }
+
+                    serialPort1.Write(Str_i.ToString());                      //字符串写入
+
+                    Str_i.Clear();
+                    //time1_i = 0;
+                }
+                else
+                {
+                    group_i = 0;
+                    timer2.Enabled = false;
+                }
+            }
+            catch
+            {
+
+            }
         }
 
         /// <summary>
@@ -485,6 +669,18 @@ namespace USART_CTL_V1._0
             AutoButton.Enabled = true;
             button14.Enabled = false;
             timer1.Enabled = false;
+            timer2.Enabled = false;
+            timer3.Enabled = false;
+
+            pictureBox3.Image = Image.FromFile("Red.jpg");
+            pictureBox4.Image = Image.FromFile("Red.jpg");
+            pictureBox5.Image = Image.FromFile("Red.jpg");
+
+            ACK_Flag = false;
+            Set_Value_Flag = false;
+            Start_Work_Flag = false;
+
+            th.Abort();
         }
 
 
@@ -505,6 +701,11 @@ namespace USART_CTL_V1._0
         string Time_cmd = "CMD:0133";
         string Delay_cmd = "CMD:0134";
         string Cnt_cmd = "CMD:0132";
+
+
+
+
+
         /// <summary>
         /// 参数配置（确认更改）
         /// </summary>
@@ -515,6 +716,7 @@ namespace USART_CTL_V1._0
             try
             {
                 pictureBox5.Image = Image.FromFile("Red.jpg");
+
                 string Time = textBox3.Text;
                 string Delay = textBox4.Text;
                 string Cnt_number = textBox7.Text;
@@ -541,6 +743,20 @@ namespace USART_CTL_V1._0
                 MessageBox.Show("串口数据写入错误", "错误");
             }
         }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //当你点击关闭窗体的时候，判断新线程是否为null
+            if (th != null)
+            {
+                //结束这个线程
+                th.Abort();
+            }
+        }
+
+
+
+
 
     }
 }
